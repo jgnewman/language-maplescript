@@ -1,4 +1,4 @@
 '.source.maplescript':
   'editor':
     'nonWordCharacters': '/\\()":,.;<>~@#$%^&|=[]{}`…'
-    'commentStart': '; '
+    'commentStart': '# '

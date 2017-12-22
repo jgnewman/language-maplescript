@@ -12,26 +12,41 @@ describe "MapleScript grammar", ->
     expect(grammar).toBeDefined()
     expect(grammar.scopeName).toBe "source.maplescript"
 
-  it "tokenizes semicolon comments", ->
-    {tokens} = grammar.tokenizeLine "; maplescript"
-    expect(tokens[0]).toEqual value: ";", scopes: ["source.maplescript", "comment.line.semicolon.maplescript", "punctuation.definition.comment.maplescript"]
+  it "tokenizes hashtag comments", ->
+    {tokens} = grammar.tokenizeLine "# maplescript"
+    expect(tokens[0]).toEqual value: "#", scopes: ["source.maplescript", "comment.line.semicolon.maplescript", "punctuation.definition.comment.maplescript"]
     expect(tokens[1]).toEqual value: " maplescript", scopes: ["source.maplescript", "comment.line.semicolon.maplescript"]
 
-  it "does not tokenize escaped semicolons as comments", ->
-    {tokens} = grammar.tokenizeLine "\\; maplescript"
-    expect(tokens[0]).toEqual value: "\\; ", scopes: ["source.maplescript"]
-    expect(tokens[1]).toEqual value: "maplescript", scopes: ["source.maplescript", "meta.symbol.maplescript"]
+  it "does not tokenize escaped hashtags as comments", ->
+    {tokens} = grammar.tokenizeLine "\\# maplescript"
+    expect(tokens[0]).toEqual value: "\\# ", scopes: ["source.maplescript"]
+    expect(tokens[1]).toEqual value: "maplescript", scopes: ["source.maplescript", "meta.variable.maplescript"]
 
-  it "tokenizes shebang comments", ->
-    {tokens} = grammar.tokenizeLine "#!/usr/bin/env maplescript"
-    expect(tokens[0]).toEqual value: "#!", scopes: ["source.maplescript", "comment.line.shebang.maplescript", "punctuation.definition.comment.shebang.maplescript"]
-    expect(tokens[1]).toEqual value: "/usr/bin/env maplescript", scopes: ["source.maplescript", "comment.line.shebang.maplescript"]
-
-  it "tokenizes strings", ->
+  it "tokenizes double quote strings", ->
     {tokens} = grammar.tokenizeLine '"foo bar"'
     expect(tokens[0]).toEqual value: '"', scopes: ["source.maplescript", "string.quoted.double.maplescript", "punctuation.definition.string.begin.maplescript"]
     expect(tokens[1]).toEqual value: 'foo bar', scopes: ["source.maplescript", "string.quoted.double.maplescript"]
     expect(tokens[2]).toEqual value: '"', scopes: ["source.maplescript", "string.quoted.double.maplescript", "punctuation.definition.string.end.maplescript"]
+
+  it "tokenizes single quote strings", ->
+    {tokens} = grammar.tokenizeLine "'foo bar'"
+    expect(tokens[0]).toEqual value: "'", scopes: ["source.maplescript", "string.quoted.single.maplescript", "punctuation.definition.string.begin.maplescript"]
+    expect(tokens[1]).toEqual value: "foo bar", scopes: ["source.maplescript", "string.quoted.single.maplescript"]
+    expect(tokens[2]).toEqual value: "'", scopes: ["source.maplescript", "string.quoted.single.maplescript", "punctuation.definition.string.end.maplescript"]
+
+  it "tokenizes backtick strings", ->
+    {tokens} = grammar.tokenizeLine "`foo bar`"
+    expect(tokens[0]).toEqual value: "`", scopes: ["source.maplescript", "string.quoted.single.maplescript", "punctuation.definition.string.begin.maplescript"]
+    expect(tokens[1]).toEqual value: "foo bar", scopes: ["source.maplescript", "string.quoted.single.maplescript"]
+    expect(tokens[2]).toEqual value: "`", scopes: ["source.maplescript", "string.quoted.single.maplescript", "punctuation.definition.string.end.maplescript"]
+
+  it "tokenizes string interpolation", ->
+    {tokens} = grammar.tokenizeLine "`${foo}`"
+    expect(tokens[0]).toEqual value: "`", scopes: ['source.maplescript', 'string.quoted.single.maplescript', 'punctuation.definition.string.begin.maplescript']
+    expect(tokens[1]).toEqual value: "${", scopes: [ 'source.maplescript', 'string.quoted.single.maplescript', 'meta.interpolation.maplescript' ]
+    expect(tokens[2]).toEqual value: "foo", scopes: [ 'source.maplescript', 'string.quoted.single.maplescript', 'meta.interpolation.maplescript', 'meta.variable.maplescript' ]
+    expect(tokens[3]).toEqual value: "}", scopes: [ 'source.maplescript', 'string.quoted.single.maplescript', 'meta.interpolation.maplescript' ]
+    expect(tokens[4]).toEqual value: "`", scopes: ['source.maplescript', 'string.quoted.single.maplescript', 'punctuation.definition.string.end.maplescript']
 
   it "tokenizes character escape sequences", ->
     {tokens} = grammar.tokenizeLine '"\\n"'
@@ -40,25 +55,8 @@ describe "MapleScript grammar", ->
     expect(tokens[2]).toEqual value: '"', scopes: ["source.maplescript", "string.quoted.double.maplescript", "punctuation.definition.string.end.maplescript"]
 
   it "tokenizes regexes", ->
-    {tokens} = grammar.tokenizeLine '#"foo"'
-    expect(tokens[0]).toEqual value: '#"', scopes: ["source.maplescript", "string.regexp.maplescript", "punctuation.definition.regexp.begin.maplescript"]
-    expect(tokens[1]).toEqual value: 'foo', scopes: ["source.maplescript", "string.regexp.maplescript"]
-    expect(tokens[2]).toEqual value: '"', scopes: ["source.maplescript", "string.regexp.maplescript", "punctuation.definition.regexp.end.maplescript"]
-
-  it "tokenizes backslash escape character in regexes", ->
-    {tokens} = grammar.tokenizeLine '#"\\\\" "/"'
-    expect(tokens[0]).toEqual value: '#"', scopes: ["source.maplescript", "string.regexp.maplescript", "punctuation.definition.regexp.begin.maplescript"]
-    expect(tokens[1]).toEqual value: "\\\\", scopes: ['source.maplescript', 'string.regexp.maplescript', 'constant.character.escape.maplescript']
-    expect(tokens[2]).toEqual value: '"', scopes: ['source.maplescript', 'string.regexp.maplescript', "punctuation.definition.regexp.end.maplescript"]
-    expect(tokens[4]).toEqual value: '"', scopes: ['source.maplescript', 'string.quoted.double.maplescript', 'punctuation.definition.string.begin.maplescript']
-    expect(tokens[5]).toEqual value: "/", scopes: ['source.maplescript', 'string.quoted.double.maplescript']
-    expect(tokens[6]).toEqual value: '"', scopes: ['source.maplescript', 'string.quoted.double.maplescript', 'punctuation.definition.string.end.maplescript']
-
-  it "tokenizes escaped double quote in regexes", ->
-    {tokens} = grammar.tokenizeLine '#"\\""'
-    expect(tokens[0]).toEqual value: '#"', scopes: ["source.maplescript", "string.regexp.maplescript", "punctuation.definition.regexp.begin.maplescript"]
-    expect(tokens[1]).toEqual value: '\\"', scopes: ['source.maplescript', 'string.regexp.maplescript', 'constant.character.escape.maplescript']
-    expect(tokens[2]).toEqual value: '"', scopes: ['source.maplescript', 'string.regexp.maplescript', "punctuation.definition.regexp.end.maplescript"]
+    {tokens} = grammar.tokenizeLine '/foo\\//gim'
+    expect(tokens[0]).toEqual value: '/foo\\//gim', scopes: ["source.maplescript", "string.regexp.maplescript"]
 
   it "tokenizes numerics", ->
     numbers =
@@ -67,9 +65,8 @@ describe "MapleScript grammar", ->
       "constant.numeric.hexadecimal.maplescript": ["0xDEADBEEF", "0XDEADBEEF"]
       "constant.numeric.octal.maplescript": ["0123"]
       "constant.numeric.bigdecimal.maplescript": ["123.456M"]
-      "constant.numeric.double.maplescript": ["123.45", "123.45e6", "123.45E6"]
+      "constant.numeric.double.maplescript": ["123.45", "123.45e6", "123.45E6", "123", "12321"]
       "constant.numeric.bigint.maplescript": ["123N"]
-      "constant.numeric.long.maplescript": ["123", "12321"]
 
     for scope, nums of numbers
       for num in nums
@@ -85,16 +82,19 @@ describe "MapleScript grammar", ->
         {tokens} = grammar.tokenizeLine bool
         expect(tokens[0]).toEqual value: bool, scopes: ["source.maplescript", scope]
 
-  it "tokenizes nil", ->
-    {tokens} = grammar.tokenizeLine "nil"
-    expect(tokens[0]).toEqual value: "nil", scopes: ["source.maplescript", "constant.language.nil.maplescript"]
+  it "tokenizes null", ->
+    {tokens} = grammar.tokenizeLine "null"
+    expect(tokens[0]).toEqual value: "null", scopes: ["source.maplescript", "constant.language.nil.maplescript"]
+
+  it "tokenizes undefined", ->
+    {tokens} = grammar.tokenizeLine "undefined"
+    expect(tokens[0]).toEqual value: "undefined", scopes: ["source.maplescript", "constant.language.nil.maplescript"]
 
   it "tokenizes keywords", ->
     tests =
       "meta.expression.maplescript": ["(:foo)"]
       "meta.map.maplescript": ["{:foo}"]
       "meta.vector.maplescript": ["[:foo]"]
-      "meta.quoted-expression.maplescript": ["'(:foo)", "`(:foo)"]
 
     for metaScope, lines of tests
       for line in lines
@@ -102,45 +102,11 @@ describe "MapleScript grammar", ->
         expect(tokens[1]).toEqual value: ":foo", scopes: ["source.maplescript", metaScope, "constant.keyword.maplescript"]
 
   it "tokenizes keyfns (keyword control)", ->
-    keyfns = ["declare", "declare-", "ns", "in-ns", "import", "use", "require", "load", "compile", "def", "defn", "defn-", "defmacro"]
+    keyfns = ["->", ">>=", "async", "await", "destr", "do", "export", "fn", "if", "import", "make", "of"]
 
     for keyfn in keyfns
       {tokens} = grammar.tokenizeLine "(#{keyfn})"
       expect(tokens[1]).toEqual value: keyfn, scopes: ["source.maplescript", "meta.expression.maplescript", "keyword.control.maplescript"]
-
-  it "tokenizes keyfns (storage control)", ->
-    keyfns = ["if", "when", "for", "cond", "do", "let", "binding", "loop", "recur", "fn", "throw", "try", "catch", "finally", "case"]
-
-    for keyfn in keyfns
-      {tokens} = grammar.tokenizeLine "(#{keyfn})"
-      expect(tokens[1]).toEqual value: keyfn, scopes: ["source.maplescript", "meta.expression.maplescript", "storage.control.maplescript"]
-
-  it "tokenizes global definitions", ->
-    macros = ["ns", "declare", "def", "defn", "defn-", "defroutes", "compojure/defroutes", "rum.core/defc123-", "some.nested-ns/def-nested->symbol!?*", "def+!.?abc8:<>", "ns/def+!.?abc8:<>"]
-
-    for macro in macros
-      {tokens} = grammar.tokenizeLine "(#{macro} foo 'bar)"
-      expect(tokens[1]).toEqual value: macro, scopes: ["source.maplescript", "meta.expression.maplescript", "meta.definition.global.maplescript", "keyword.control.maplescript"]
-      expect(tokens[3]).toEqual value: "foo", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.definition.global.maplescript", "entity.global.maplescript"]
-
-  it "tokenizes dynamic variables", ->
-    mutables = ["*ns*", "*foo-bar*"]
-
-    for mutable in mutables
-      {tokens} = grammar.tokenizeLine mutable
-      expect(tokens[0]).toEqual value: mutable, scopes: ["source.maplescript", "meta.symbol.dynamic.maplescript"]
-
-  it "tokenizes metadata", ->
-    {tokens} = grammar.tokenizeLine "^Foo"
-    expect(tokens[0]).toEqual value: "^", scopes: ["source.maplescript", "meta.metadata.simple.maplescript"]
-    expect(tokens[1]).toEqual value: "Foo", scopes: ["source.maplescript", "meta.metadata.simple.maplescript", "meta.symbol.maplescript"]
-
-    {tokens} = grammar.tokenizeLine "^{:foo true}"
-    expect(tokens[0]).toEqual value: "^{", scopes: ["source.maplescript", "meta.metadata.map.maplescript", "punctuation.section.metadata.map.begin.maplescript"]
-    expect(tokens[1]).toEqual value: ":foo", scopes: ["source.maplescript", "meta.metadata.map.maplescript", "constant.keyword.maplescript"]
-    expect(tokens[2]).toEqual value: " ", scopes: ["source.maplescript", "meta.metadata.map.maplescript"]
-    expect(tokens[3]).toEqual value: "true", scopes: ["source.maplescript", "meta.metadata.map.maplescript", "constant.language.boolean.maplescript"]
-    expect(tokens[4]).toEqual value: "}", scopes: ["source.maplescript", "meta.metadata.map.maplescript", "punctuation.section.metadata.map.end.trailing.maplescript"]
 
   it "tokenizes functions", ->
     expressions = ["(foo)", "(foo 1 10)"]
@@ -148,17 +114,6 @@ describe "MapleScript grammar", ->
     for expr in expressions
       {tokens} = grammar.tokenizeLine expr
       expect(tokens[1]).toEqual value: "foo", scopes: ["source.maplescript", "meta.expression.maplescript", "entity.name.function.maplescript"]
-
-  it "tokenizes vars", ->
-    {tokens} = grammar.tokenizeLine "(func #'foo)"
-    expect(tokens[2]).toEqual value: " #", scopes: ["source.maplescript", "meta.expression.maplescript"]
-    expect(tokens[3]).toEqual value: "'foo", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.var.maplescript"]
-
-  it "tokenizes symbols", ->
-    {tokens} = grammar.tokenizeLine "foo/bar"
-    expect(tokens[0]).toEqual value: "foo", scopes: ["source.maplescript", "meta.symbol.namespace.maplescript"]
-    expect(tokens[1]).toEqual value: "/", scopes: ["source.maplescript"]
-    expect(tokens[2]).toEqual value: "bar", scopes: ["source.maplescript", "meta.symbol.maplescript"]
 
   testMetaSection = (metaScope, puncScope, startsWith, endsWith) ->
     # Entire expression on one line.
@@ -192,18 +147,11 @@ describe "MapleScript grammar", ->
   it "tokenizes expressions", ->
     testMetaSection "expression", "expression", "(", ")"
 
-  it "tokenizes quoted expressions", ->
-    testMetaSection "quoted-expression", "expression", "'(", ")"
-    testMetaSection "quoted-expression", "expression", "`(", ")"
-
   it "tokenizes vectors", ->
     testMetaSection "vector", "vector", "[", "]"
 
   it "tokenizes maps", ->
     testMetaSection "map", "map", "{", "}"
-
-  it "tokenizes sets", ->
-    testMetaSection "set", "set", "\#{", "}"
 
   it "tokenizes functions in nested sexp", ->
     {tokens} = grammar.tokenizeLine "((foo bar) baz)"
@@ -211,10 +159,10 @@ describe "MapleScript grammar", ->
     expect(tokens[1]).toEqual value: "(", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.expression.maplescript", "punctuation.section.expression.begin.maplescript"]
     expect(tokens[2]).toEqual value: "foo", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.expression.maplescript", "entity.name.function.maplescript"]
     expect(tokens[3]).toEqual value: " ", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.expression.maplescript"]
-    expect(tokens[4]).toEqual value: "bar", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.expression.maplescript", "meta.symbol.maplescript"]
+    expect(tokens[4]).toEqual value: "bar", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.expression.maplescript", "meta.variable.maplescript"]
     expect(tokens[5]).toEqual value: ")", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.expression.maplescript", "punctuation.section.expression.end.maplescript"]
     expect(tokens[6]).toEqual value: " ", scopes: ["source.maplescript", "meta.expression.maplescript"]
-    expect(tokens[7]).toEqual value: "baz", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.symbol.maplescript"]
+    expect(tokens[7]).toEqual value: "baz", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.variable.maplescript"]
     expect(tokens[8]).toEqual value: ")", scopes: ["source.maplescript", "meta.expression.maplescript", "punctuation.section.expression.end.trailing.maplescript"]
 
   it "tokenizes maps used as functions", ->
@@ -223,21 +171,11 @@ describe "MapleScript grammar", ->
     expect(tokens[1]).toEqual value: "{", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.map.maplescript", "punctuation.section.map.begin.maplescript"]
     expect(tokens[2]).toEqual value: ":foo", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.map.maplescript", "constant.keyword.maplescript"]
     expect(tokens[3]).toEqual value: " ", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.map.maplescript"]
-    expect(tokens[4]).toEqual value: "bar", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.map.maplescript", "meta.symbol.maplescript"]
+    expect(tokens[4]).toEqual value: "bar", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.map.maplescript", "meta.variable.maplescript"]
     expect(tokens[5]).toEqual value: "}", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.map.maplescript", "punctuation.section.map.end.maplescript"]
     expect(tokens[6]).toEqual value: " ", scopes: ["source.maplescript", "meta.expression.maplescript"]
     expect(tokens[7]).toEqual value: ":foo", scopes: ["source.maplescript", "meta.expression.maplescript", "constant.keyword.maplescript"]
     expect(tokens[8]).toEqual value: ")", scopes: ["source.maplescript", "meta.expression.maplescript", "punctuation.section.expression.end.trailing.maplescript"]
-
-  it "tokenizes sets used in functions", ->
-    {tokens} = grammar.tokenizeLine "(\#{:foo :bar})"
-    expect(tokens[0]).toEqual value: "(", scopes: ["source.maplescript", "meta.expression.maplescript", "punctuation.section.expression.begin.maplescript"]
-    expect(tokens[1]).toEqual value: "\#{", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.set.maplescript", "punctuation.section.set.begin.maplescript"]
-    expect(tokens[2]).toEqual value: ":foo", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.set.maplescript", "constant.keyword.maplescript"]
-    expect(tokens[3]).toEqual value: " ", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.set.maplescript"]
-    expect(tokens[4]).toEqual value: ":bar", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.set.maplescript", "constant.keyword.maplescript"]
-    expect(tokens[5]).toEqual value: "}", scopes: ["source.maplescript", "meta.expression.maplescript", "meta.set.maplescript", "punctuation.section.set.end.trailing.maplescript"]
-    expect(tokens[6]).toEqual value: ")", scopes: ["source.maplescript", "meta.expression.maplescript", "punctuation.section.expression.end.trailing.maplescript"]
 
   describe "firstLineMatch", ->
     it "recognises interpreter directives", ->

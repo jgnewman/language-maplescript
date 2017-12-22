@@ -28,13 +28,16 @@
 'name': 'MapleScript'
 'patterns': [
   {
+    'include': '#multicomment'
+  }
+  {
     'include': '#comment'
   }
   {
-    'include': '#shebang-comment'
+    'include': '#html'
   }
   {
-    'include': '#quoted-sexp'
+    'include': '#vardef'
   }
   {
     'include': '#sexp'
@@ -43,13 +46,16 @@
     'include': '#keyfn'
   }
   {
-    'include': '#string'
+    'include': '#singlestring'
+  }
+  {
+    'include': '#doublestring'
+  }
+  {
+    'include': '#backtickstring'
   }
   {
     'include': '#vector'
-  }
-  {
-    'include': '#set'
   }
   {
     'include': '#map'
@@ -58,19 +64,7 @@
     'include': '#regexp'
   }
   {
-    'include': '#var'
-  }
-  {
     'include': '#constants'
-  }
-  {
-    'include': '#dynamic-variables'
-  }
-  {
-    'include': '#metadata'
-  }
-  {
-    'include': '#namespace-symbol'
   }
   {
     'include': '#symbol'
@@ -79,7 +73,7 @@
 'repository':
   'comment':
     # NOTE: This must be kept as a begin/end match for language-todo to work
-    'begin': '(?<!\\\\);'
+    'begin': '(?<!\\\\)\\#'
     'beginCaptures':
       '0':
         'name': 'punctuation.definition.comment.maplescript'
@@ -88,7 +82,11 @@
   'constants':
     'patterns': [
       {
-        'match': '(nil)(?=(\\s|\\)|\\]|\\}))'
+        'match': '(\\:\\:)'
+        'name': 'keyword.control.maplescript'
+      }
+      {
+        'match': '(null|undefined)(?=(\\s|\\)|\\]|\\}))'
         'name': 'constant.language.nil.maplescript'
       }
       {
@@ -116,12 +114,12 @@
         'name': 'constant.numeric.bigdecimal.maplescript'
       }
       {
-        'match': '(-?\\d+\\.\\d+([eE][+-]?\\d+)?)'
-        'name': 'constant.numeric.double.maplescript'
-      }
-      {
         'match': '(-?\\d+N)'
         'name': 'constant.numeric.bigint.maplescript'
+      }
+      { # catchall numeric
+        'match': '(-?\\d+(\\.\\d+)?([eE][+-]?\\d+)?)'
+        'name': 'constant.numeric.double.maplescript'
       }
       {
         'match': '(-?\\d+)'
@@ -132,22 +130,22 @@
       }
     ]
   'keyword':
-    'match': '(?<=(\\s|\\(|\\[|\\{)):[a-zA-Z0-9\\#\\.\\-\\_\\:\\+\\=\\>\\<\\/\\!\\?\\*]+(?=(\\s|\\)|\\]|\\}|\\,))'
+    'match': '(?<=(\\s|\\(|\\[|\\{)):[a-zA-Z0-9\\.\\-\\_\\:\\+\\=\\>\\<\\/\\!\\?\\*]+(?=(\\s|\\)|\\]|\\}|\\,))'
     'name': 'constant.keyword.maplescript'
+  'vardef':
+    'match': '(make)\\s+([A-Za-z0-9_\\$]+)'
+    'captures':
+      '1':
+        'name': 'keyword.control.maplescript'
+      '2':
+        'name': 'meta.symbol.maplescript'
   'keyfn':
     'patterns': [
       {
-        'match': '(?<=(\\s|\\(|\\[|\\{))(if(-[-a-z\\?]*)?|when(-[-a-z]*)?|for(-[-a-z]*)?|cond|do|let(-[-a-z\\?]*)?|binding|loop|recur|fn|throw[a-z\\-]*|try|catch|finally|([a-z]*case))(?=(\\s|\\)|\\]|\\}))'
-        'name': 'storage.control.maplescript'
-      }
-      {
-        'match': '(?<=(\\s|\\(|\\[|\\{))(declare-?|(in-)?ns|import|use|require|load|compile|(def[a-z\\-]*))(?=(\\s|\\)|\\]|\\}))'
+        'match': '(?<=(\\s|\\(|\\[|\\{))(-\\>|\\>\\>\\=|async|await|destr|do|export|fn|if|import|of)(?=(\\s|\\)|\\]|\\}))'
         'name': 'keyword.control.maplescript'
       }
     ]
-  'dynamic-variables':
-    'match': '\\*[\\w\\.\\-\\_\\:\\+\\=\\>\\<\\!\\?\\d]+\\*'
-    'name': 'meta.symbol.dynamic.maplescript'
   'map':
     'begin': '(\\{)'
     'beginCaptures':
@@ -165,94 +163,26 @@
         'include': '$self'
       }
     ]
-  'metadata':
-    'patterns': [
-      {
-        'begin': '(\\^\\{)'
-        'beginCaptures':
-          '1':
-            'name': 'punctuation.section.metadata.map.begin.maplescript'
-        'end': '(\\}(?=[\\}\\]\\)\\s]*(?:;|$)))|(\\})'
-        'endCaptures':
-          '1':
-            'name': 'punctuation.section.metadata.map.end.trailing.maplescript'
-          '2':
-            'name': 'punctuation.section.metadata.map.end.maplescript'
-        'name': 'meta.metadata.map.maplescript'
-        'patterns': [
-          {
-            'include': '$self'
-          }
-        ]
-      }
-      {
-        'begin': '(\\^)'
-        'end': '(\\s)'
-        'name': 'meta.metadata.simple.maplescript'
-        'patterns': [
-          {
-            'include': '#keyword'
-          }
-          {
-            'include': '$self'
-          }
-        ]
-      }
-    ]
-  'quoted-sexp':
-    'begin': '([\'``]\\()'
+  'html':
+    'begin': '(\\<\\/?)([A-Za-z0-9_\\$\\-]+)'
     'beginCaptures':
       '1':
-        'name': 'punctuation.section.expression.begin.maplescript'
-    'end': '(\\))$|(\\)(?=[\\}\\]\\)\\s]*(?:;|$)))|(\\))'
+        'name': 'punctuation.section.html.begin.maplescript'
+      '2':
+        'name': 'entity.name.function.maplescript'
+    'end': '(\\/?\\>)'
     'endCaptures':
       '1':
-        'name': 'punctuation.section.expression.end.trailing.maplescript'
-      '2':
-        'name': 'punctuation.section.expression.end.trailing.maplescript'
-      '3':
-        'name': 'punctuation.section.expression.end.maplescript'
-    'name': 'meta.quoted-expression.maplescript'
+        'name': 'punctuation.section.html.end.maplescript'
+    'name': 'meta.map.maplescript'
     'patterns': [
       {
         'include': '$self'
       }
     ]
   'regexp':
-    'begin': '#"'
-    'beginCaptures':
-      '0':
-        'name': 'punctuation.definition.regexp.begin.maplescript'
-    'end': '"'
-    'endCaptures':
-      '0':
-        'name': 'punctuation.definition.regexp.end.maplescript'
+    'match': '\\/([^\\/\\n\\r]|\\/)+\\/[gim]*'
     'name': 'string.regexp.maplescript'
-    'patterns': [
-      {
-        'include': '#regexp_escaped_char'
-      }
-    ]
-  'regexp_escaped_char':
-    'match': '\\\\.'
-    'name': 'constant.character.escape.maplescript'
-  'set':
-    'begin': '(\\#\\{)'
-    'beginCaptures':
-      '1':
-        'name': 'punctuation.section.set.begin.maplescript'
-    'end': '(\\}(?=[\\}\\]\\)\\s]*(?:;|$)))|(\\})'
-    'endCaptures':
-      '1':
-        'name': 'punctuation.section.set.end.trailing.maplescript'
-      '2':
-        'name': 'punctuation.section.set.end.maplescript'
-    'name': 'meta.set.maplescript'
-    'patterns': [
-      {
-        'include': '$self'
-      }
-    ]
   'sexp':
     'begin': '(\\()'
     'beginCaptures':
@@ -269,31 +199,7 @@
     'name': 'meta.expression.maplescript'
     'patterns': [
       {
-        # ns, declare and everything that starts with def* or namespace/def*
-        'begin': '(?<=\\()(ns|declare|def[\\w\\d._:+=><!?*-]*|[\\w._:+=><!?*-][\\w\\d._:+=><!?*-]*/def[\\w\\d._:+=><!?*-]*)\\s+'
-        'beginCaptures':
-          '1':
-            'name': 'keyword.control.maplescript'
-        'end': '(?=\\))'
-        'name': 'meta.definition.global.maplescript'
-        'patterns': [
-          {
-            # there may be some metadata before an actual definition
-            'include': '#metadata'
-          }
-          { # dynamic variables are rendered diferently
-            'include': '#dynamic-variables'
-          }
-          {
-            # recognizing a symbol as being defined here
-            # copied and pasted from #symbol, screw it
-            'match': '([\\w\\.\\-\\_\\:\\+\\=\\>\\<\\!\\?\\*][\\w\\.\\-\\_\\:\\+\\=\\>\\<\\!\\?\\*\\d]+)'
-            'name': 'entity.global.maplescript'
-          }
-          {
-            'include': '$self'
-          }
-        ]
+        'include': '#vardef'
       }
       {
         'include': '#keyfn'
@@ -306,9 +212,6 @@
       }
       {
         'include': '#map'
-      }
-      {
-        'include': '#set'
       }
       {
         'include': '#sexp'
@@ -328,15 +231,7 @@
         'include': '$self'
       }
     ]
-  'shebang-comment':
-    # NOTE: This must be kept as a begin/end match for language-todo to work
-    'begin': '^(#!)'
-    'beginCaptures':
-      '1':
-        'name': 'punctuation.definition.comment.shebang.maplescript'
-    'end': '$'
-    'name': 'comment.line.shebang.maplescript'
-  'string':
+  'doublestring':
     'begin': '(?<!\\\\)(")'
     'beginCaptures':
       '1':
@@ -352,26 +247,65 @@
         'name': 'constant.character.escape.maplescript'
       }
     ]
-  'namespace-symbol':
+  'singlestring':
+    'begin': '(?<!\\\\)(\')'
+    'beginCaptures':
+      '1':
+        'name': 'punctuation.definition.string.begin.maplescript'
+    'end': '(\')'
+    'endCaptures':
+      '1':
+        'name': 'punctuation.definition.string.end.maplescript'
+    'name': 'string.quoted.single.maplescript'
     'patterns': [
-      { # copied from #symbol, plus a / at the end. Matches the "app/" part of
-        # "app/*config*"
-        'match': '([\\w\\.\\-\\_\\:\\+\\=\\>\\<\\!\\?\\*][\\w\\.\\-\\_\\:\\+\\=\\>\\<\\!\\?\\*\\d]+)/'
-        'captures':
-          '1':
-            'name': 'meta.symbol.namespace.maplescript'
+      {
+        'match': '\\\\.'
+        'name': 'constant.character.escape.maplescript'
       }
     ]
+  'backtickstring':
+    'begin': '(?<!\\\\)(\`)'
+    'beginCaptures':
+      '1':
+        'name': 'punctuation.definition.string.begin.maplescript'
+    'end': '(\`)'
+    'endCaptures':
+      '1':
+        'name': 'punctuation.definition.string.end.maplescript'
+    'name': 'string.quoted.single.maplescript'
+    'patterns': [
+      {
+        'match': '\\\\.'
+        'name': 'constant.character.escape.maplescript'
+      },
+      {
+        'begin': '\\$\\{'
+        'end': '\\}'
+        'name': 'meta.interpolation.maplescript'
+        'patterns': [
+          {
+            'include': '$self'
+          }
+        ]
+      }
+    ]
+  'multicomment':
+    'begin': '(?<!\\\\)(\\#\\#\\#)'
+    'beginCaptures':
+      '1':
+        'name': 'punctuation.definition.comment.maplescript'
+    'end': '(\\#\\#\\#)'
+    'endCaptures':
+      '1':
+        'name': 'punctuation.definition.comment.maplescript'
+    'name': 'punctuation.definition.comment.maplescript'
   'symbol':
     'patterns': [
       {
-        'match': '([\\w\\.\\-\\_\\:\\+\\=\\>\\<\\!\\?\\*][\\w\\.\\-\\_\\:\\+\\=\\>\\<\\!\\?\\*\\d]+)'
-        'name': 'meta.symbol.maplescript'
+        'match': '([@\\w\\_\\$][\\w\\_\\$\\d]*)'
+        'name': 'meta.variable.maplescript' # was meta.symbol.maplescript
       }
     ]
-  'var':
-    'match': '(?<=(\\s|\\(|\\[|\\{)\\#)\'[a-zA-Z0-9\\.\\-\\_\\:\\+\\=\\>\\<\\/\\!\\?\\*]+(?=(\\s|\\)|\\]|\\}))'
-    'name': 'meta.var.maplescript'
   'vector':
     'begin': '(\\[)'
     'beginCaptures':

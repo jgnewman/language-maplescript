@@ -109,4 +109,3 @@
   'println':
     'prefix': 'prnl'
     'body': '(println $1)'
-maplescript

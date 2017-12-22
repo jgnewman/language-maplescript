@@ -37,9 +37,6 @@
     'include': '#html'
   }
   {
-    'include': '#vardef'
-  }
-  {
     'include': '#sexp'
   }
   {
@@ -132,17 +129,10 @@
   'keyword':
     'match': '(?<=(\\s|\\(|\\[|\\{)):[a-zA-Z0-9\\.\\-\\_\\:\\+\\=\\>\\<\\/\\!\\?\\*]+(?=(\\s|\\)|\\]|\\}|\\,))'
     'name': 'constant.keyword.maplescript'
-  'vardef':
-    'match': '(make)\\s+([A-Za-z0-9_\\$]+)'
-    'captures':
-      '1':
-        'name': 'keyword.control.maplescript'
-      '2':
-        'name': 'meta.symbol.maplescript'
   'keyfn':
     'patterns': [
       {
-        'match': '(?<=(\\s|\\(|\\[|\\{))(-\\>|\\>\\>\\=|async|await|destr|do|export|fn|if|import|of)(?=(\\s|\\)|\\]|\\}))'
+        'match': '(?<=(\\s|\\(|\\[|\\{))(-\\>|\\>\\>\\=|async|await|destr|do|export|fn|if|import|make|of|where)(?=(\\s|\\)|\\]|\\}))'
         'name': 'keyword.control.maplescript'
       }
     ]
@@ -169,7 +159,7 @@
       '1':
         'name': 'punctuation.section.html.begin.maplescript'
       '2':
-        'name': 'entity.name.function.maplescript'
+        'name': 'meta.variable.maplescript'
     'end': '(\\/?\\>)'
     'endCaptures':
       '1':
@@ -198,9 +188,6 @@
         'name': 'punctuation.section.expression.end.maplescript'
     'name': 'meta.expression.maplescript'
     'patterns': [
-      {
-        'include': '#vardef'
-      }
       {
         'include': '#keyfn'
       }
@@ -303,7 +290,7 @@
     'patterns': [
       {
         'match': '([@\\w\\_\\$][\\w\\_\\$\\d]*)'
-        'name': 'meta.variable.maplescript' # was meta.symbol.maplescript
+        'name': 'meta.symbol.maplescript' # was meta.symbol.maplescript
       }
     ]
   'vector':

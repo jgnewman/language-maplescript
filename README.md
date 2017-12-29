@@ -1,6 +1,6 @@
 # MapleScript language support in Atom
 
-[![Build Status](https://travis-ci.org/atom/language-maplescript.svg?branch=master)](https://travis-ci.org/atom/language-maplescript)
+[![Build Status](https://travis-ci.org/jgnewman/language-maplescript.svg?branch=master)](https://travis-ci.org/jgnewman/language-maplescript)
 
 Adds syntax highlighting and snippets to MapleScript files in Atom.
 

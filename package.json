@@ -1,6 +1,6 @@
 {
   "name": "language-maplescript",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "MapleScript language support in Atom",
   "engines": {
     "atom": "*",

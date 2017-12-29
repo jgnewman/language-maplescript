@@ -132,7 +132,7 @@
   'keyfn':
     'patterns': [
       {
-        'match': '(?<=(\\s|\\(|\\[|\\{))(-\\>|\\>\\>\\=|async|await|destr|do|export|fn|if|import|make|of|where)(?=(\\s|\\)|\\]|\\}))'
+        'match': '(?<=(\\s|\\(|\\[|\\{))(-\\>|\\>\\>\\=|\@|all|any|args|async|await|destr|do|element|export|fn|if|import|make|none|not|of)(?=(\\s|\\)|\\]|\\}))'
         'name': 'keyword.control.maplescript'
       }
     ]

@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/atom/language-maplescript.svg?branch=master)](https://travis-ci.org/atom/language-maplescript)
 
-Adds syntax highlighting to MapleScript files in Atom.
+Adds syntax highlighting and snippets to MapleScript files in Atom.
 
 Originally converted from the [Clojure language package](https://github.com/atom/language-clojure) for Atom.
 

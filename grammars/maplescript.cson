@@ -70,7 +70,7 @@
 'repository':
   'comment':
     # NOTE: This must be kept as a begin/end match for language-todo to work
-    'begin': '(?<!\\\\)\\#'
+    'begin': '(?<!\\\\)\\-\\-'
     'beginCaptures':
       '0':
         'name': 'punctuation.definition.comment.maplescript'
@@ -89,6 +89,10 @@
       {
         'match': '(true|false)'
         'name': 'constant.language.boolean.maplescript'
+      }
+      {
+        'match': '(where)'
+        'name': 'meta.variable.maplescript'
       }
       {
         'match': '(-?\\d+/\\d+)'
@@ -132,7 +136,7 @@
   'keyfn':
     'patterns': [
       {
-        'match': '(?<=(\\s|\\(|\\[|\\{))(-\\>|\\>\\>\\=|\@|all|any|args|async|await|destr|do|element|export|fn|if|import|make|none|not|of)(?=(\\s|\\)|\\]|\\}))'
+        'match': '(?<=(\\s|\\(|\\[|\\{))(-\\>|\\>\\>\\=|\@|all|any|args|async|await|destr|do|export|if|import|make|none|not|of)(?=(\\s|\\)|\\]|\\}))'
         'name': 'keyword.control.maplescript'
       }
     ]
@@ -204,15 +208,21 @@
         'include': '#sexp'
       }
       {
-        'match': '(?<=\\()(.+?)(?=\\s|\\))'
+        'match': '(?<=\\()((\\&)?.+?)(?=\\s|\\))'
         'captures':
           '1':
             'name': 'entity.name.function.maplescript'
+          '2':
+            'name': 'meta.variable.maplescript'
         'patterns': [
           {
             'include': '$self'
           }
         ]
+      }
+      {
+        'match': '(\\&)'
+        'name': 'meta.variable.maplescript'
       }
       {
         'include': '$self'
@@ -277,11 +287,11 @@
       }
     ]
   'multicomment':
-    'begin': '(?<!\\\\)(\\#\\#\\#)'
+    'begin': '(?<!\\\\)(\\-\\-\\-)'
     'beginCaptures':
       '1':
         'name': 'punctuation.definition.comment.maplescript'
-    'end': '(\\#\\#\\#)'
+    'end': '(\\-\\-\\-)'
     'endCaptures':
       '1':
         'name': 'punctuation.definition.comment.maplescript'

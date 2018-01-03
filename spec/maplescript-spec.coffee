@@ -12,14 +12,14 @@ describe "MapleScript grammar", ->
     expect(grammar).toBeDefined()
     expect(grammar.scopeName).toBe "source.maplescript"
 
-  it "tokenizes hashtag comments", ->
-    {tokens} = grammar.tokenizeLine "# maplescript"
-    expect(tokens[0]).toEqual value: "#", scopes: ["source.maplescript", "comment.line.semicolon.maplescript", "punctuation.definition.comment.maplescript"]
+  it "tokenizes basic comments", ->
+    {tokens} = grammar.tokenizeLine "-- maplescript"
+    expect(tokens[0]).toEqual value: "--", scopes: ["source.maplescript", "comment.line.semicolon.maplescript", "punctuation.definition.comment.maplescript"]
     expect(tokens[1]).toEqual value: " maplescript", scopes: ["source.maplescript", "comment.line.semicolon.maplescript"]
 
   it "does not tokenize escaped hashtags as comments", ->
-    {tokens} = grammar.tokenizeLine "\\# maplescript"
-    expect(tokens[0]).toEqual value: "\\# ", scopes: ["source.maplescript"]
+    {tokens} = grammar.tokenizeLine "\\-- maplescript"
+    expect(tokens[0]).toEqual value: "\\-- ", scopes: ["source.maplescript"]
     expect(tokens[1]).toEqual value: "maplescript", scopes: ["source.maplescript", "meta.symbol.maplescript"]
 
   it "tokenizes double quote strings", ->
@@ -102,7 +102,7 @@ describe "MapleScript grammar", ->
         expect(tokens[1]).toEqual value: ":foo", scopes: ["source.maplescript", metaScope, "constant.keyword.maplescript"]
 
   it "tokenizes keyfns (keyword control)", ->
-    keyfns = ["->", ">>=", "async", "await", "destr", "do", "export", "fn", "if", "import", "make", "of"]
+    keyfns = ["->", ">>=", "async", "await", "destr", "do", "export", "if", "import", "make", "of"]
 
     for keyfn in keyfns
       {tokens} = grammar.tokenizeLine "(#{keyfn})"
